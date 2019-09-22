@@ -1,36 +1,43 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+[RequireComponent(typeof(BoxCollider2D))]
+public class CharacterController2D : MonoBehaviour
 {
-    // Start is called before the first frame update
-    private Rigidbody2D rb2d;
-    public float WalkSpeed;
-    public float JumpForce;
-    public AnimationClip _walk, _jump;
-    public Animation _Legs;
-    public Camera cam;
-    public bool mirror;
+    [SerializeField, Tooltip("Max speed, in units per second, that the character moves.")]
+    float speed = 9;
 
-    private bool _canJump, _canWalk;
-    private bool _isWalk, _isJump;
-    private float rot, _startScale;
-    private Rigidbody2D rig;
-    private Vector2 _inputAxis;
-    private RaycastHit2D _hit;
+    [SerializeField, Tooltip("Acceleration while grounded.")]
+    float walkAcceleration = 75;
 
-    void Start()
+    [SerializeField, Tooltip("Acceleration while in the air.")]
+    float airAcceleration = 30;
+
+    [SerializeField, Tooltip("Deceleration applied when character is grounded and not attempting to move.")]
+    float groundDeceleration = 70;
+
+    [SerializeField, Tooltip("Max height the character will jump regardless of gravity")]
+    float jumpHeight = 4;
+
+    private BoxCollider2D boxCollider;
+
+    private Vector2 velocity;
+
+    private void Awake()
     {
-        rig = gameObject.GetComponent<Rigidbody2D>();
-        _startScale = transform.localScale.x;
+        boxCollider = GetComponent<BoxCollider2D>();
     }
 
-    // Update is called once per frame
-    void FixedUpdate()
+    private void Update()
     {
-        float moveHorizontal = Input.GetAxis ( "Horizontal");
-        float moveVertical = Input.GetAxis ("Vertical");
-        Vector2 movement = new Vector2 (moveHorizontal, moveVertical);
-        rb2d.AddForce(movement * WalkSpeed);
+        float moveInput = Input.GetAxisRaw("Horizontal");
+        if (moveInput != 0)
+        {
+            velocity.x = Mathf.MoveTowards(velocity.x, speed * moveInput, walkAcceleration * Time.deltaTime);
+        }
+        else
+        {
+            velocity.x = Mathf.MoveTowards(velocity.x, 0, groundDeceleration * Time.deltaTime);
+        }
+        transform.Translate(velocity * Time.deltaTime);
     }
 }
