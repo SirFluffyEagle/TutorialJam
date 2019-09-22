@@ -15,6 +15,8 @@ public class CharacterController2D : MonoBehaviour
     [SerializeField, Tooltip("Deceleration applied when character is grounded and not attempting to move.")]
     float groundDeceleration = 70;
 
+    private bool grounded;
+
     [SerializeField, Tooltip("Max height the character will jump regardless of gravity")]
     float jumpHeight = 4;
 
@@ -39,5 +41,11 @@ public class CharacterController2D : MonoBehaviour
             velocity.x = Mathf.MoveTowards(velocity.x, 0, groundDeceleration * Time.deltaTime);
         }
         transform.Translate(velocity * Time.deltaTime);
+
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            velocity.y = Mathf.Sqrt(2 * jumpHeight * Mathf.Abs(Physics2D.gravity.y));
+        }
+        velocity.y += Physics2D.gravity.y * Time.deltaTime;
     }
 }
